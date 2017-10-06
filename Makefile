@@ -1,6 +1,8 @@
 .PHONY: help
 
 VERSION ?= `cat VERSION`
+MAJ_VERSION := $(shell echo $(VERSION) | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\(\.[0-9][0-9]*\)*/\1/')
+MIN_VERSION := $(shell echo $(VERSION) | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\(\.[0-9][0-9]*\)*/\1.\2/')
 IMAGE_NAME ?= bitwalker/alpine-erlang
 
 help:
@@ -14,7 +16,7 @@ shell: ## Run an Erlang shell in the image
 	docker run --rm -it $(IMAGE_NAME):$(VERSION) erl
 
 build: ## Rebuild the Docker image
-	docker build --force-rm -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):latest .
+	docker build --force-rm -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
 
 release: build ## Rebuild and release the Docker image to Docker Hub
 	docker push $(IMAGE_NAME):$(VERSION)
