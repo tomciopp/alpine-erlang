@@ -21,23 +21,25 @@ RUN \
     mkdir -p ${HOME} && \
     adduser -s /bin/sh -u 1001 -G root -h ${HOME} -S -D default && \
     chown -R 1001:0 ${HOME} && \
-    # Add edge repos tagged so that we can selectively install edge packages
+    # Add tagged repos as well as the edge repo so that we can selectively install edge packages
+    echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.6/main" >> /etc/apk/repositories && \
+    echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.6/community" >> /etc/apk/repositories && \
     echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     # Upgrade Alpine and base packages
     apk --no-cache upgrade && \
     # Distillery requires bash
-    apk add --no-cache bash && \
+    apk add --no-cache bash@main && \
     # Install Erlang/OTP deps
     apk add --no-cache pcre@edge && \
     apk add --no-cache \
-      ca-certificates \
-      openssl-dev \
-      ncurses-dev \
-      unixodbc-dev \
-      zlib-dev && \
+      ca-certificates@main \
+      openssl-dev@main \
+      ncurses-dev@main \
+      unixodbc-dev@main \
+      zlib-dev@main && \
     # Install Erlang/OTP build deps
     apk add --no-cache --virtual .erlang-build \
-      git autoconf build-base perl-dev && \
+      git@main autoconf@main build-base@main perl-dev@main && \
     # Shallow clone Erlang/OTP
     git clone -b OTP-$ERLANG_VERSION --single-branch --depth 1 https://github.com/erlang/otp.git . && \
     # Erlang/OTP build env
