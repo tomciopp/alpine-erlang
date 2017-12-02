@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM alpine:3.7
 
 MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 
@@ -6,7 +6,7 @@ MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2017-11-30 \
+ENV REFRESHED_AT=2017-12-02 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
