@@ -11,7 +11,7 @@ NOTE: This image sets up a `default` user, with home set to `/opt/app` and owned
 is also set to `$HOME`. It is highly recommended that you add a `USER default` instruction to the end of your
 Dockerfile so that your app runs in a non-elevated context.
 
-To boot straight to a prompt in the image:
+To boot straight to a prompt in the image (may look different if running a more recent version, but you get the gist):
 
 ```
 $ docker run --rm -it --user=root bitwalker/alpine-erlang erl
@@ -27,7 +27,7 @@ a
 Extending for your own application:
 
 ```dockerfile
-FROM bitwalker/alpine-erlang:20.3.1
+FROM bitwalker/alpine-erlang:latest
 
 # Set exposed ports
 EXPOSE 5000
