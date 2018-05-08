@@ -18,9 +18,9 @@ WORKDIR /tmp/erlang-build
 # Install Erlang
 RUN \
     # Create default user and home directory, set owner to default
-    mkdir -p ${HOME} && \
-    adduser -s /bin/sh -u 1001 -G root -h ${HOME} -S -D default && \
-    chown -R 1001:0 ${HOME} && \
+    mkdir -p "${HOME}" && \
+    adduser -s /bin/sh -u 1001 -G root -h "${HOME}" -S -D default && \
+    chown -R 1001:0 "${HOME}" && \
     # Add tagged repos as well as the edge repo so that we can selectively install edge packages
     echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.7/main" >> /etc/apk/repositories && \
     echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.7/community" >> /etc/apk/repositories && \
