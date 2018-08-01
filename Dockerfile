@@ -6,7 +6,7 @@ MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2018-07-23 \
+ENV REFRESHED_AT=2018-07-31 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
@@ -39,7 +39,7 @@ RUN \
       zlib-dev && \
     # Install Erlang/OTP build deps
     apk add --no-cache --virtual .erlang-build \
-      dpkg-dev dpkg \
+      dpkg-dev dpkg binutils \
       git autoconf build-base perl-dev && \
     # Shallow clone Erlang/OTP
     git clone -b OTP-$ERLANG_VERSION --single-branch --depth 1 https://github.com/erlang/otp.git . && \
@@ -77,14 +77,32 @@ RUN \
       --enable-shared-zlib \
       --enable-ssl=dynamic-ssl-lib \
       --enable-hipe && \
-    # Build
-    make -j4 && make install && \
-    # Cleanup
-    apk del --force .erlang-build && \
-    cd $HOME && \
-    rm -rf /tmp/erlang-build && \
-    # Update ca certificates
-    update-ca-certificates --fresh
+      # Build
+      make -j4 && make install && \
+      # Cleanup
+      cd $HOME && \
+      rm -rf /tmp/erlang-build && \
+      # Update ca certificates
+      update-ca-certificates --fresh && \
+      /usr/bin/erl -eval "beam_lib:strip_release('/usr/lib/erlang/lib')" -s init stop > /dev/null && \
+      (/usr/bin/strip /usr/lib/erlang/erts-*/bin/* || true) && \
+      rm -rf /usr/lib/erlang/usr/ && \
+      rm -rf /usr/lib/erlang/misc/ && \
+      for DIR in /usr/lib/erlang/erts* /usr/lib/erlang/lib/*; do \
+          rm -rf ${DIR}/src; \
+          rm -rf ${DIR}/include; \
+          rm -rf ${DIR}/doc; \
+          rm -rf ${DIR}/man; \
+          rm -rf ${DIR}/examples; \
+          rm -rf ${DIR}/emacs; \
+          rm -rf ${DIR}/c_src; \
+      done && \
+      rm -rf /usr/lib/erlang/erts-*/lib/ && \
+      rm /usr/lib/erlang/erts-*/bin/dialyzer && \
+      rm /usr/lib/erlang/erts-*/bin/erlc && \
+      rm /usr/lib/erlang/erts-*/bin/typer && \
+      rm /usr/lib/erlang/erts-*/bin/ct_run && \
+      apk del --force .erlang-build
 
 WORKDIR ${HOME}
 
