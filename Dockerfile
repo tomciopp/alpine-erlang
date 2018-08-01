@@ -90,7 +90,6 @@ RUN \
       rm -rf /usr/lib/erlang/misc/ && \
       for DIR in /usr/lib/erlang/erts* /usr/lib/erlang/lib/*; do \
           rm -rf ${DIR}/src; \
-          rm -rf ${DIR}/include; \
           rm -rf ${DIR}/doc; \
           rm -rf ${DIR}/man; \
           rm -rf ${DIR}/examples; \
