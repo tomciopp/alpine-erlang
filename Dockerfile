@@ -11,7 +11,7 @@ ENV REFRESHED_AT=2018-07-31 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
     TERM=xterm \
-    ERLANG_VERSION=21.0.3
+    ERLANG_VERSION=21.0.4
 
 WORKDIR /tmp/erlang-build
 
