@@ -16,10 +16,16 @@ shell: ## Run an Erlang shell in the image
 	docker run --rm -it $(IMAGE_NAME):$(VERSION) erl
 
 sh: ## Boot to a shell prompt
-	docker run --rm -it $(IMAGE_NAME):$(VERSION) /bin/sh
+	docker run --rm -it $(IMAGE_NAME):$(VERSION) /bin/bash
+
+sh-build: ## Boot to a shell prompt in the build image
+	docker run --rm -it $(IMAGE_NAME)-build:$(VERSION) /bin/bash
 
 build: ## Build the Docker image
 	docker build --squash --force-rm -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
+
+stage-build: ## Build the build image and stop there for debugging
+	docker build --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
 
 clean: ## Clean up generated images
 	@docker rmi --force $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):$(MIN_VERSION) $(IMAGE_NAME):$(MAJ_VERSION) $(IMAGE_NAME):latest
