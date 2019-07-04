@@ -8,7 +8,7 @@ ENV REFRESHED_AT=2019-06-21 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
-    ERLANG_VERSION=22.0.4
+    ERLANG_VERSION=22.0.5
 
 # Add tagged repos as well as the edge repo so that we can selectively install edge packages
 RUN \
@@ -121,7 +121,6 @@ ENV LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
     TERM=xterm \
-    ERLANG_VERSION=22.0.4 \
     PATH=/usr/local/bin:${PATH}
 
 # Copy Erlang/OTP installation
