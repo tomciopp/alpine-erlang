@@ -4,7 +4,7 @@ FROM alpine:3.10 AS build
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2019-06-21 \
+ENV REFRESHED_AT=2019-07-09 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
@@ -143,10 +143,10 @@ RUN \
     apk add --no-cache --update \
       bash \
       ca-certificates \
-      openssl-dev \
-      ncurses-dev \
-      unixodbc-dev \
-      zlib-dev && \
+      openssl \
+      ncurses \
+      unixodbc \
+      zlib && \
     # Update ca certificates
     update-ca-certificates --fresh
 
