@@ -49,8 +49,6 @@ COPY patches /tmp/patches
 RUN \
     # Shallow clone Erlang/OTP
     git clone -b OTP-$ERLANG_VERSION --single-branch --depth 1 https://github.com/erlang/otp.git . && \
-    # Apply patches
-    patch -p1 < /tmp/patches/safe-signal-handling.patch && \
     # Erlang/OTP build env
     export ERL_TOP=/tmp/erlang-build && \
     export PATH=$ERL_TOP/bin:$PATH && \
