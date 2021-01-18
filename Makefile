@@ -5,6 +5,11 @@ MAJ_VERSION := $(shell echo $(VERSION) | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)
 MIN_VERSION := $(shell echo $(VERSION) | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\(\.[0-9][0-9]*\)*/\1.\2/')
 IMAGE_NAME ?= bitwalker/alpine-erlang
 ARM_IMAGE_NAME ?= bitwalker/alpine-erlang-armv8
+ifndef CI
+	DOCKER_BUILD_FLAGS := --squash --force-rm
+else
+	DOCKER_BUILD_FLAGS :=
+endif
 
 help:
 	@echo "$(IMAGE_NAME):$(VERSION)"
@@ -23,10 +28,10 @@ sh-build: ## Boot to a shell prompt in the build image
 	docker run --rm -it $(IMAGE_NAME)-build:$(VERSION) /bin/bash
 
 build: ## Build the Docker image
-	docker build --squash --force-rm -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
+	docker build $(DOCKER_BUILD_FLAGS) -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
 
 build-arm: ## Build the ARMv8 Docker image
-	docker build --squash --force-rm -t $(ARM_IMAGE_NAME):$(VERSION) -t $(ARM_IMAGE_NAME):$(MIN_VERSION) -t $(ARM_IMAGE_NAME):$(MAJ_VERSION) -t $(ARM_IMAGE_NAME):latest -f Dockerfile.arm .
+	docker build $(DOCKER_BUILD_FLAGS) -t $(ARM_IMAGE_NAME):$(VERSION) -t $(ARM_IMAGE_NAME):$(MIN_VERSION) -t $(ARM_IMAGE_NAME):$(MAJ_VERSION) -t $(ARM_IMAGE_NAME):latest -f Dockerfile.arm .
 
 stage-build: ## Build the build image and stop there for debugging
 	docker build --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
