@@ -1,19 +1,19 @@
-FROM alpine:3.12.3 AS build
+FROM alpine:3.13.0 AS build
 
 # Important!  Update this no-op ENV variable when this Dockerfile
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2020-12-23 \
+ENV REFRESHED_AT=2021-01-17 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
-    ERLANG_VERSION=23.2.1
+    ERLANG_VERSION=23.2.2
 
 # Add tagged repos as well as the edge repo so that we can selectively install edge packages
 RUN \
-    echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.12/main" >> /etc/apk/repositories && \
-    echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.12/community" >> /etc/apk/repositories && \
+    echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories && \
+    echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories && \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
 
 # Upgrade Alpine and base packages
@@ -111,7 +111,7 @@ RUN \
 
 ### Final Image
 
-FROM alpine:3.12.3
+FROM alpine:3.13.0
 
 MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 
