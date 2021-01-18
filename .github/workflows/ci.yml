@@ -5,9 +5,11 @@ on:
     branches:
       - master
     paths:
+      - 'Makefile'
       - 'Dockerfile'
   pull_request:
     paths:
+      - 'Makefile'
       - 'Dockerfile'
 
 jobs:
