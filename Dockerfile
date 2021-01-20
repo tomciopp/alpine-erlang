@@ -4,11 +4,11 @@ FROM alpine:3.13.0 AS build
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2021-01-17 \
+ENV REFRESHED_AT=2021-01-20 \
     LANG=en_US.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
-    ERLANG_VERSION=23.2.2
+    ERLANG_VERSION=23.2.3
 
 # Add tagged repos as well as the edge repo so that we can selectively install edge packages
 RUN \
