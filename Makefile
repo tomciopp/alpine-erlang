@@ -28,10 +28,10 @@ setup-buildx: ## Setup a Buildx builder
 	fi
 
 build: setup-buildx ## Build the Docker image
-	docker buildx build --load --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
 
 stage-build: ## Build the build image and stop there for debugging
-	docker buildx build --load --platform linux/amd64,linux/arm64 --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
+	docker buildx build --platform linux/amd64,linux/arm64 --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
 
 clean: ## Clean up generated images
 	@docker rmi --force $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):$(MIN_VERSION) $(IMAGE_NAME):$(MAJ_VERSION) $(IMAGE_NAME):latest
