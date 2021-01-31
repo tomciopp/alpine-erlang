@@ -17,12 +17,12 @@ RUN \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
 
 # Upgrade Alpine and base packages
-RUN apk --no-cache --update --available upgrade
+RUN apk --no-cache --update-cache --available upgrade
 
 # Install bash and Erlang/OTP deps
 RUN \
-    apk add --no-cache --update pcre@edge && \
-    apk add --no-cache --update \
+    apk add --no-cache --update-cache pcre@edge && \
+    apk add --no-cache --update-cache \
       bash \
       ca-certificates \
       openssl-dev \
@@ -135,10 +135,10 @@ RUN \
     echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.12/community" >> /etc/apk/repositories && \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     # Upgrade Alpine and base packages
-    apk --no-cache --update --available upgrade && \
+    apk --no-cache --update-cache --available upgrade && \
     # Install bash and Erlang/OTP deps
-    apk add --no-cache --update pcre@edge && \
-    apk add --no-cache --update \
+    apk add --no-cache --update-cache pcre@edge && \
+    apk add --no-cache --update-cache \
       bash \
       ca-certificates \
       openssl \
