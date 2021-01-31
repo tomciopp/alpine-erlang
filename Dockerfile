@@ -4,8 +4,8 @@ FROM alpine:3.13.0 AS build
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2021-01-20 \
-    LANG=en_US.UTF-8 \
+ENV REFRESHED_AT=2021-01-31 \
+    LANG=C.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
     ERLANG_VERSION=23.2.3
@@ -21,12 +21,12 @@ RUN apk --no-cache --update-cache --available upgrade
 
 # Install bash and Erlang/OTP deps
 RUN \
-    apk add --no-cache --update-cache pcre@edge && \
     apk add --no-cache --update-cache \
       bash \
       ca-certificates \
-      openssl-dev \
       ncurses-dev \
+      openssl-dev \
+      pcre \
       unixodbc-dev \
       zlib-dev
 
@@ -66,24 +66,11 @@ RUN \
       --without-debugger \
       --without-observer \
       --without-jinterface \
-      --without-cosEvent\
-      --without-cosEventDomain \
-      --without-cosFileTransfer \
-      --without-cosNotification \
-      --without-cosProperty \
-      --without-cosTime \
-      --without-cosTransactions \
       --without-et \
-      --without-gs \
-      --without-ic \
       --without-megaco \
-      --without-orber \
-      --without-percept \
-      --without-typer \
       --enable-threads \
       --enable-shared-zlib \
-      --enable-ssl=dynamic-ssl-lib \
-      --enable-hipe && \
+      --enable-ssl=dynamic-ssl-lib && \
     make -j4
 
 # Install to temporary location
@@ -115,7 +102,7 @@ FROM alpine:3.13.0
 
 MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 
-ENV LANG=en_US.UTF-8 \
+ENV LANG=C.UTF-8 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
     TERM=xterm \
@@ -137,12 +124,12 @@ RUN \
     # Upgrade Alpine and base packages
     apk --no-cache --update-cache --available upgrade && \
     # Install bash and Erlang/OTP deps
-    apk add --no-cache --update-cache pcre@edge && \
     apk add --no-cache --update-cache \
       bash \
       ca-certificates \
-      openssl \
       ncurses \
+      openssl \
+      pcre \
       unixodbc \
       zlib && \
     # Update ca certificates
