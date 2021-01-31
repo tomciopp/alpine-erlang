@@ -22,19 +22,21 @@ sh-build: ## Boot to a shell prompt in the build image
 	docker run --rm -it $(IMAGE_NAME)-build:$(VERSION) /bin/bash
 
 setup-buildx: ## Setup a Buildx builder
-	docker buildx create --append --name buildx-builder --driver docker-container --use
-	docker buildx inspect --bootstrap --builder buildx-builder
+	@if ! docker buildx ls | grep buildx-builder >/dev/null; then \
+		docker buildx create --append --name buildx-builder --driver docker-container --use && \
+		docker buildx inspect --bootstrap --builder buildx-builder; \
+	fi
 
-build: ## Build the Docker image
-	docker buildx build --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
+build: setup-buildx ## Build the Docker image
+	docker buildx build --load --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
 
 stage-build: ## Build the build image and stop there for debugging
-	docker buildx build --platform linux/amd64,linux/arm64 --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
+	docker buildx build --load --platform linux/amd64,linux/arm64 --target=build -t $(IMAGE_NAME)-build:$(VERSION) .
 
 clean: ## Clean up generated images
 	@docker rmi --force $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):$(MIN_VERSION) $(IMAGE_NAME):$(MAJ_VERSION) $(IMAGE_NAME):latest
 
 rebuild: clean build ## Rebuild the Docker image
 
-release: ## Build and release the Docker image to Docker Hub
+release: setup-buildx ## Build and release the Docker image to Docker Hub
 	docker buildx build --push --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(VERSION) -t $(IMAGE_NAME):$(MIN_VERSION) -t $(IMAGE_NAME):$(MAJ_VERSION) -t $(IMAGE_NAME):latest .
