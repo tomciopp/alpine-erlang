@@ -1,4 +1,7 @@
-FROM alpine:3.13.0 AS build
+ARG ALPINE_VERSION
+FROM alpine:${ALPINE_VERSION} AS build
+ARG ALPINE_MIN_VERSION
+ARG ERLANG_VERSION
 
 # Important!  Update this no-op ENV variable when this Dockerfile
 # is updated with the current date. It will force refresh of all
@@ -8,12 +11,13 @@ ENV REFRESHED_AT=2021-01-31 \
     LANG=C.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
-    ERLANG_VERSION=23.2.3
+    ALPINE_MIN_VERSION=${ALPINE_MIN_VERSION} \
+    ERLANG_VERSION=${ERLANG_VERSION}
 
 # Add tagged repos as well as the edge repo so that we can selectively install edge packages
 RUN \
-    echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.13/main" >> /etc/apk/repositories && \
-    echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.13/community" >> /etc/apk/repositories && \
+    echo "@main http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_MIN_VERSION}/main" >> /etc/apk/repositories && \
+    echo "@community http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_MIN_VERSION}/community" >> /etc/apk/repositories && \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
 
 # Upgrade Alpine and base packages
@@ -98,7 +102,9 @@ RUN \
 
 ### Final Image
 
-FROM alpine:3.13.0
+ARG ALPINE_VERSION
+FROM alpine:${ALPINE_VERSION}
+ARG ALPINE_MIN_VERSION
 
 MAINTAINER Paul Schoenfelder <paulschoenfelder@gmail.com>
 
@@ -106,7 +112,7 @@ ENV LANG=C.UTF-8 \
     HOME=/opt/app/ \
     # Set this so that CTRL+G works properly
     TERM=xterm \
-    PATH=/usr/local/bin:${PATH}
+    ALPINE_MIN_VERSION=${ALPINE_MIN_VERSION}
 
 # Copy Erlang/OTP installation
 COPY --from=build /tmp/usr/local /usr/local
@@ -118,8 +124,8 @@ RUN \
     adduser -s /bin/sh -u 1001 -G root -h "${HOME}" -S -D default && \
     chown -R 1001:0 "${HOME}" && \
     # Add tagged repos as well as the edge repo so that we can selectively install edge packages
-    echo "@main http://dl-cdn.alpinelinux.org/alpine/v3.12/main" >> /etc/apk/repositories && \
-    echo "@community http://dl-cdn.alpinelinux.org/alpine/v3.12/community" >> /etc/apk/repositories && \
+    echo "@main http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_MIN_VERSION}/main" >> /etc/apk/repositories && \
+    echo "@community http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_MIN_VERSION}/community" >> /etc/apk/repositories && \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     # Upgrade Alpine and base packages
     apk --no-cache --update-cache --available upgrade && \
@@ -135,4 +141,4 @@ RUN \
     # Update ca certificates
     update-ca-certificates --fresh
 
-CMD ["/usr/bin/bash"]
+CMD ["bash"]

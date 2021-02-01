@@ -12,24 +12,53 @@ on:
       - 'Makefile'
       - 'Dockerfile'
 
+env:
+  BUILDX_CACHE_DIR: /tmp/buildx
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Get Version Info
+      id: versions
+      run: |
+        erlang_version="$(cat VERSION | grep erlang | cut -d ' ' -f2)"
+        alpine_version="$(cat VERSION | grep alpine | cut -d ' ' -f2)"
+        echo "::set-output name=erlang_version::${erlang_version}"
+        echo "::set-output name=alpine_version::${alpine_version}"
+
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v1
+
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v1
+
+    - name: Cache Docker Layers
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: ${{ env.BUILDX_CACHE_DIR }}
+        key: buildx-alpine${{ steps.versions.outputs.alpine_version }}-erlang${{ steps.versions.outputs.erlang_version }}
+
     - name: Build Image
+      env:
+        VERSION: ${{ steps.versions.outputs.erlang_version }}
+        ALPINE_VERSION: ${{ steps.versions.outputs.alpine_version }}
       run: make build
+
     - name: Login
       if: ${{ github.event_name == 'push' }}
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Publish Image
       if: ${{ github.event_name == 'push' }}
+      env:
+        VERSION: ${{ steps.versions.outputs.erlang_version }}
+        ALPINE_VERSION: ${{ steps.versions.outputs.alpine_version }}
       run: make release
