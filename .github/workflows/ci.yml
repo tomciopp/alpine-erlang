@@ -42,8 +42,12 @@ jobs:
       uses: actions/cache@v2
       id: cache
       with:
-        path: ${{ env.BUILDX_CACHE_DIR }}
+        path: /tmp/buildx
         key: buildx-alpine${{ steps.versions.outputs.alpine_version }}-erlang${{ steps.versions.outputs.erlang_version }}
+        restore-keys: |
+          buildx-alpine${{ steps.versions.outputs.alpine_version }}-erlang
+          buildx-alpine${{ steps.versions.outputs.alpine_version }}-
+          buildx-alpine
 
     - name: Build Image
       env:
