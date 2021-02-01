@@ -7,10 +7,12 @@ on:
     paths:
       - 'Makefile'
       - 'Dockerfile'
+      - 'VERSION'
   pull_request:
     paths:
       - 'Makefile'
       - 'Dockerfile'
+      - 'VERSION'
 
 env:
   BUILDX_CACHE_DIR: /tmp/buildx
