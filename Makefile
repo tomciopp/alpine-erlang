@@ -67,7 +67,6 @@ release: setup-buildx ## Build and release the Docker image to Docker Hub
 		--build-arg ERLANG_VERSION=$(VERSION) \
 		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
-		--target=build \
 		--platform linux/amd64,linux/arm64 \
 		--cache-from "type=local,src=$(BUILDX_CACHE_DIR)" \
 		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
