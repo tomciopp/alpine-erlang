@@ -7,12 +7,10 @@ on:
     paths:
       - 'Makefile'
       - 'Dockerfile'
-      - 'VERSION'
   pull_request:
     paths:
       - 'Makefile'
       - 'Dockerfile'
-      - 'VERSION'
 
 env:
   BUILDX_CACHE_DIR: /tmp/buildx
@@ -20,17 +18,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy: 
+      matrix: 
+        otp: [23.3.4.4, 24.0.2]
+        alpine: [3.14.0]
+        latest: [false]
+        include:
+          - otp: 24.0.2
+            latest: true
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Get Version Info
-      id: versions
-      run: |
-        erlang_version="$(cat VERSION | grep erlang | cut -d ' ' -f2)"
-        alpine_version="$(cat VERSION | grep alpine | cut -d ' ' -f2)"
-        echo "::set-output name=erlang_version::${erlang_version}"
-        echo "::set-output name=alpine_version::${alpine_version}"
 
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v1
@@ -43,16 +41,16 @@ jobs:
       id: cache
       with:
         path: /tmp/buildx
-        key: buildx-alpine${{ steps.versions.outputs.alpine_version }}-erlang${{ steps.versions.outputs.erlang_version }}
+        key: buildx-alpine${{ matrix.alpine }}-erlang${{ matrix.otp }}
         restore-keys: |
-          buildx-alpine${{ steps.versions.outputs.alpine_version }}-erlang
-          buildx-alpine${{ steps.versions.outputs.alpine_version }}-
+          buildx-alpine${{ matrix.alpine }}-erlang
+          buildx-alpine${{ matrix.alpine }}-
           buildx-alpine
 
     - name: Build Image
       env:
-        VERSION: ${{ steps.versions.outputs.erlang_version }}
-        ALPINE_VERSION: ${{ steps.versions.outputs.alpine_version }}
+        VERSION: ${{ matrix.otp }}
+        ALPINE_VERSION: ${{ matrix.alpine }}
       run: make build
 
     - name: Login
@@ -65,6 +63,13 @@ jobs:
     - name: Publish Image
       if: ${{ github.event_name == 'push' }}
       env:
-        VERSION: ${{ steps.versions.outputs.erlang_version }}
-        ALPINE_VERSION: ${{ steps.versions.outputs.alpine_version }}
+        VERSION: ${{ matrix.otp }}
+        ALPINE_VERSION: ${{ matrix.alpine }}
       run: make release
+
+    - name: Tag Latest Version
+      if: ${{ github.event_name == 'push' && matrix.latest }}
+      env: 
+        VERSION: ${{ matrix.otp }}
+        ALPINE_VERSION: ${{ matrix.alpine }}
+      run: make latest

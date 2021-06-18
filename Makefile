@@ -42,8 +42,7 @@ build: setup-buildx ## Build the Docker image
 		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
-		-t $(IMAGE_NAME):$(MAJ_VERSION) \
-		-t $(IMAGE_NAME):latest .
+		-t $(IMAGE_NAME):$(MAJ_VERSION) .
 
 stage-build: ## Build the build image and stop there for debugging
 	docker buildx build \
@@ -54,8 +53,7 @@ stage-build: ## Build the build image and stop there for debugging
 		--platform linux/amd64,linux/arm64 \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
-		-t $(IMAGE_NAME):$(MAJ_VERSION) \
-		-t $(IMAGE_NAME):latest .
+		-t $(IMAGE_NAME):$(MAJ_VERSION) .
 
 clean: ## Clean up generated images
 	@docker rmi --force $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):$(MIN_VERSION) $(IMAGE_NAME):$(MAJ_VERSION) $(IMAGE_NAME):latest
@@ -72,5 +70,14 @@ release: setup-buildx ## Build and release the Docker image to Docker Hub
 		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
-		-t $(IMAGE_NAME):$(MAJ_VERSION) \
+		-t $(IMAGE_NAME):$(MAJ_VERSION) .
+
+latest: setup-buildx ## Build and release the Docker image to Docker Hub
+	docker buildx build --push \
+		--build-arg ERLANG_VERSION=$(VERSION) \
+		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
+		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
+		--platform linux/amd64,linux/arm64 \
+		--cache-from "type=local,src=$(BUILDX_CACHE_DIR)" \
+		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
 		-t $(IMAGE_NAME):latest .
