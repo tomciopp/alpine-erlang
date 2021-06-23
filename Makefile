@@ -28,29 +28,34 @@ sh-build: ## Boot to a shell prompt in the build image
 setup-buildx: ## Setup a Buildx builder
 	@mkdir -p "$(BUILDX_CACHE_DIR)"
 	@if ! docker buildx ls | grep buildx-builder >/dev/null; then \
-		docker buildx create --append --name buildx-builder --driver docker-container --use && \
+		docker buildx create \
+			--buildkitd-flags '--allow-insecure-entitlement security.insecure' \
+			--append \
+			--name buildx-builder \
+			--driver docker-container \
+			--use && \
 		docker buildx inspect --bootstrap --builder buildx-builder; \
 	fi
 
 build: setup-buildx ## Build the Docker image
-	docker buildx build --output "type=image,push=false" \
+	docker buildx build --output "type=docker,push=false" \
 		--build-arg ERLANG_VERSION=$(VERSION) \
 		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
-		--platform linux/amd64,linux/arm64 \
 		--cache-from "type=local,src=$(BUILDX_CACHE_DIR)" \
 		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
+		--platform linux/amd64,linux/arm64 \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
 		-t $(IMAGE_NAME):$(MAJ_VERSION) .
 
-stage-build: ## Build the build image and stop there for debugging
-	docker buildx build \
+stage-build: setup-buildx ## Build the build image and stop there for debugging
+	docker buildx build --load \
 		--build-arg ERLANG_VERSION=$(VERSION) \
 		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
 		--target=build \
-		--platform linux/amd64,linux/arm64 \
+		--platform linux/amd64 \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
 		-t $(IMAGE_NAME):$(MAJ_VERSION) .

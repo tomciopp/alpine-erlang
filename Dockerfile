@@ -27,6 +27,7 @@ RUN apk --no-cache --update-cache --available upgrade
 RUN \
     apk add --no-cache --update-cache \
       bash \
+      curl \
       ca-certificates \
       libgcc \
       ncurses-dev \
@@ -44,25 +45,24 @@ RUN \
       git \
       autoconf \
       build-base \
-      perl-dev
+      perl-dev \
+      perl
 
 WORKDIR /tmp/erlang-build
 
-COPY patches /tmp/patches
-
-# Clone, Configure, Build
+# Download OTP
 RUN \
-    # Shallow clone Erlang/OTP
-    git clone -b OTP-$ERLANG_VERSION --single-branch --depth 1 https://github.com/erlang/otp.git . && \
-    # Erlang/OTP build env
+    curl -sSL "https://github.com/erlang/otp/releases/download/OTP-${ERLANG_VERSION}/otp_src_${ERLANG_VERSION}.tar.gz" | \
+      tar --strip-components=1 -xzf -
+
+# Configure & Build
+RUN \
     export ERL_TOP=/tmp/erlang-build && \
-    export PATH=$ERL_TOP/bin:$PATH && \
-    export CPPFlAGS="-D_BSD_SOURCE $CPPFLAGS" && \
-    # Configure
-    ./otp_build autoconf && \
+    export PATH=/tmp/erlang-build:$PATH && \
+    export CPPFLAGS="-D_BSD_SOURCE $CPPFLAGS" && \
+    chown -R "$(id -un):$(id -gn)" ./ && \
     ./configure \
       --prefix=/usr/local \
-      --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
       --sysconfdir=/etc \
       --mandir=/usr/share/man \
       --infodir=/usr/share/info \
@@ -73,10 +73,11 @@ RUN \
       --without-jinterface \
       --without-et \
       --without-megaco \
+      --without-snmp \
       --enable-threads \
       --enable-shared-zlib \
       --enable-ssl=dynamic-ssl-lib && \
-    make -j4
+    make -j8
 
 # Install to temporary location
 RUN \
@@ -133,6 +134,7 @@ RUN \
     # Install bash and Erlang/OTP deps
     apk add --no-cache --update-cache \
       bash \
+      libstdc++ \
       ca-certificates \
       ncurses \
       openssl \
