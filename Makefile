@@ -44,7 +44,7 @@ build: setup-buildx ## Build the Docker image
 		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
 		--cache-from "type=local,src=$(BUILDX_CACHE_DIR)" \
 		--cache-to "type=local,dest=$(BUILDX_CACHE_DIR)" \
-		--platform linux/amd64 \
+		--platform linux/amd64,linux/arm64 \
 		-t $(IMAGE_NAME):$(VERSION) \
 		-t $(IMAGE_NAME):$(MIN_VERSION) \
 		-t $(IMAGE_NAME):$(MAJ_VERSION) .
