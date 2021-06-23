@@ -54,6 +54,12 @@ jobs:
         ALPINE_VERSION: ${{ matrix.alpine }}
       run: make build
 
+    - name: Test Image
+      env:
+        VERSION: ${{ matrix.otp }}
+        ALPINE_VERSION: ${{ matrix.alpine }}
+      run: make test
+
     - name: Login
       if: ${{ github.event_name == 'push' }}
       uses: docker/login-action@v1
