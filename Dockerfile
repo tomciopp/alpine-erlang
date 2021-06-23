@@ -30,10 +30,8 @@ RUN \
       curl \
       ca-certificates \
       libgcc \
-      ncurses-dev \
-      openssl-dev \
+      lksctp-tools \
       pcre \
-      unixodbc-dev \
       zlib-dev
 
 # Install Erlang/OTP build deps
@@ -41,12 +39,17 @@ RUN \
     apk add --no-cache --virtual .erlang-build \
       dpkg-dev \
       dpkg \
-      binutils \
-      git \
+      gcc \
+      g++ \
+      libc-dev \
+      linux-headers \
+      make \
       autoconf \
-      build-base \
-      perl-dev \
-      perl
+      ncurses-dev \
+      openssl-dev \
+      unixodbc-dev \
+      lksctp-tools-dev \
+      tar
 
 WORKDIR /tmp/erlang-build
 
@@ -58,10 +61,10 @@ RUN \
 # Configure & Build
 RUN \
     export ERL_TOP=/tmp/erlang-build && \
-    export PATH=/tmp/erlang-build:$PATH && \
     export CPPFLAGS="-D_BSD_SOURCE $CPPFLAGS" && \
-    chown -R "$(id -un):$(id -gn)" ./ && \
+    ./otp_build autoconf && \
     ./configure \
+      --build="$(dpkg-architecture --query DEB_HOST_GNU_TYPE)" \
       --prefix=/usr/local \
       --sysconfdir=/etc \
       --mandir=/usr/share/man \
@@ -73,34 +76,33 @@ RUN \
       --without-jinterface \
       --without-et \
       --without-megaco \
-      --without-snmp \
       --enable-threads \
       --enable-shared-zlib \
       --enable-ssl=dynamic-ssl-lib && \
-    make -j8
+    make -j$(getconf _NPROCESSORS_ONLN)
 
 # Install to temporary location
 RUN \
     make DESTDIR=/tmp install && \
+    cd /tmp && rm -rf /tmp/erlang-build && \
+    find /tmp/usr/local -regex '/tmp/usr/local/lib/erlang/\(lib/\|erts-\).*/\(man\|doc\|obj\|c_src\|emacs\|info\|examples\)' | xargs rm -rf && \
+    find /tmp/usr/local -name src | xargs -r find | grep -v '\.hrl$' | xargs rm -v || true && \
+	find /tmp/usr/local -name src | xargs -r find | xargs rmdir -vp || true && \
     # Strip install to reduce size
+	scanelf --nobanner -E ET_EXEC -BF '%F' --recursive /tmp/usr/local | xargs -r strip --strip-all && \
+	scanelf --nobanner -E ET_DYN -BF '%F' --recursive /tmp/usr/local | xargs -r strip --strip-unneeded && \
+    runDeps="$( \
+		scanelf --needed --nobanner --format '%n#p' --recursive /tmp/usr/local \
+			| tr ',' '\n' \
+			| sort -u \
+			| awk 'system("[ -e /tmp/usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+	)" && \
     ln -s /tmp/usr/local/lib/erlang /usr/local/lib/erlang && \
     /tmp/usr/local/bin/erl -eval "beam_lib:strip_release('/tmp/usr/local/lib/erlang/lib')" -s init stop > /dev/null && \
     (/usr/bin/strip /tmp/usr/local/lib/erlang/erts-*/bin/* || true) && \
-    rm -rf /tmp/usr/local/lib/erlang/usr/ && \
-    rm -rf /tmp/usr/local/lib/erlang/misc/ && \
-    for DIR in /tmp/usr/local/lib/erlang/erts* /tmp/usr/local/lib/erlang/lib/*; do \
-        rm -rf ${DIR}/src/*.erl; \
-        rm -rf ${DIR}/doc; \
-        rm -rf ${DIR}/man; \
-        rm -rf ${DIR}/examples; \
-        rm -rf ${DIR}/emacs; \
-        rm -rf ${DIR}/c_src; \
-    done && \
-    rm -rf /tmp/usr/local/lib/erlang/erts-*/lib/ && \
-    rm /tmp/usr/local/lib/erlang/erts-*/bin/dialyzer && \
-    rm /tmp/usr/local/lib/erlang/erts-*/bin/erlc && \
-    rm /tmp/usr/local/lib/erlang/erts-*/bin/typer && \
-    rm /tmp/usr/local/lib/erlang/erts-*/bin/ct_run
+    apk add --no-cache \
+        $runDeps \
+        lksctp-tools
 
 ### Final Image
 
