@@ -52,17 +52,11 @@ jobs:
           buildx-alpine${{ matrix.alpine }}-
           buildx-alpine
 
-    - name: Build Image
+    - name: Build/Validate Image
       env:
         VERSION: ${{ matrix.otp }}
         ALPINE_VERSION: ${{ matrix.alpine }}
-      run: make build
-
-    - name: Test Image
-      env:
-        VERSION: ${{ matrix.otp }}
-        ALPINE_VERSION: ${{ matrix.alpine }}
-      run: make test
+      run: make validate
 
     - name: Login
       if: ${{ github.event_name == 'push' }}
@@ -76,11 +70,5 @@ jobs:
       env:
         VERSION: ${{ matrix.otp }}
         ALPINE_VERSION: ${{ matrix.alpine }}
+        IS_LATEST: ${{ matrix.latest }}
       run: make release
-
-    - name: Tag Latest Version
-      if: ${{ github.event_name == 'push' && matrix.latest }}
-      env: 
-        VERSION: ${{ matrix.otp }}
-        ALPINE_VERSION: ${{ matrix.alpine }}
-      run: make latest
