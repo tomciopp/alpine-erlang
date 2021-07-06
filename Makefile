@@ -38,7 +38,7 @@ setup-buildx: ## Setup a Buildx builder
 	fi
 
 build: setup-buildx ## Build the Docker image
-	docker buildx build --output "type=docker,push=false" \
+	docker buildx build --output "type=image,push=false" \
 		--build-arg ERLANG_VERSION=$(VERSION) \
 		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		--build-arg ALPINE_MIN_VERSION=$(ALPINE_MIN_VERSION) \
