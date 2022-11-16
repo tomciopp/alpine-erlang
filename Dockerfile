@@ -7,7 +7,7 @@ ARG ERLANG_VERSION
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=2022-11-16 \
+ENV REFRESHED_AT=2022-08-30 \
     LANG=C.UTF-8 \
     HOME=/opt/app/ \
     TERM=xterm \
