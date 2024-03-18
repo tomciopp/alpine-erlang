@@ -8,13 +8,11 @@ on:
       - 'Makefile'
       - 'Dockerfile'
       - 'VERSION'
-      - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'Makefile'
       - 'Dockerfile'
       - 'VERSION'
-      - '.github/workflows/ci.yml'
 
 env:
   BUILDX_CACHE_DIR: /tmp/buildx
