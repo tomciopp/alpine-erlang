@@ -39,7 +39,7 @@ setup-buildx: ## Setup a Buildx builder
 	@mkdir -p "$(BUILDX_CACHE_DIR)"
 	@if ! docker buildx ls | grep buildx-builder >/dev/null; then \
 		docker buildx create \
-			--buildkitd-flags '--debug --allow-insecure-entitlement security.insecure' \
+			--buildkitd-flags '--allow-insecure-entitlement security.insecure' \
 			--name buildx-builder \
 			--driver docker-container \
 			--use && \
