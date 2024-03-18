@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: [25.1.2, 26.0.1, 26.2.1, 26.2.3]
+        otp: [26.2.3]
         alpine: [3.19.1]
         latest: [false]
         include:
