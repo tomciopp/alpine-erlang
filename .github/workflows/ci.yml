@@ -25,11 +25,11 @@ jobs:
     strategy:
       matrix:
         otp: [25.1.2, 26.0.1, 26.2.1, 26.2.3]
-        alpine: [3.19.0]
+        alpine: [3.19.1]
         latest: [false]
         include:
           - otp: 26.2.1
-            alpine: 3.19.0
+            alpine: 3.19.1
             latest: true
     steps:
     - name: Checkout
